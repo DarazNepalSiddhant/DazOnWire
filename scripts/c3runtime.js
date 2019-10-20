@@ -627,6 +627,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Exps.Y,
 		C3.Plugins.System.Exps.dt,
 		C3.Plugins.Spritefont2.Acts.SetText,
+		C3.Plugins.Sprite.Acts.SetX,
+		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.System.Cnds.IsGroupActive,
 		C3.Behaviors.Platform.Cnds.IsOnFloor,
 		C3.Plugins.Sprite.Cnds.OnCollision,
@@ -642,7 +644,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.MoveTo.Acts.MoveToPosition,
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.System.Cnds.Else,
-		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.System.Exps.random,
 		C3.Plugins.System.Exps.choose,
 		C3.Plugins.System.Acts.CreateObject,
@@ -651,7 +652,6 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareY,
 		C3.Plugins.Sprite.Exps.Height,
 		C3.Plugins.System.Exps.layoutheight,
-		C3.Plugins.Sprite.Acts.SetX,
 		C3.Plugins.Sprite.Cnds.OnDestroyed,
 		C3.Plugins.System.Acts.Wait,
 		C3.Plugins.System.Acts.GoToLayout,
@@ -729,6 +729,7 @@ self.C3_JsPropNameTable = [
 	{Boat2: 0},
 	{Type: 0},
 	{SpriteFont_Yellow: 0},
+	{Shadow: 0},
 	{input: 0},
 	{GameOver: 0},
 	{WaterParralaxSpeed: 0},
@@ -887,6 +888,10 @@ self.C3_JsPropNameTable = [
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject();
+		},
 		() => "Player",
 		() => "GameOver",
 		() => 236,
@@ -895,10 +900,6 @@ self.C3_JsPropNameTable = [
 		() => "Jump",
 		() => -10,
 		() => 120,
-		p => {
-			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
 		() => "JumpLeft",
 		() => 10,
 		() => 3,
