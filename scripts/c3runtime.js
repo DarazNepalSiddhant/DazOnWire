@@ -536,18 +536,6 @@ self["C3_Shaders"] = {};
 
 "use strict";C3.Behaviors.Pin.Exps={PinnedUID(){return this._pinInst?this._pinInst.GetUID():-1}};
 
-"use strict";C3.Behaviors.Bullet=class extends C3.SDKBehaviorBase{constructor(a){super(a)}Release(){super.Release()}};
-
-"use strict";C3.Behaviors.Bullet.Type=class extends C3.SDKBehaviorTypeBase{constructor(a){super(a)}Release(){super.Release()}OnCreate(){}};
-
-"use strict";{C3.Behaviors.Bullet.Instance=class extends C3.SDKBehaviorInstanceBase{constructor(b,c){var d=Math.abs;super(b);const e=this.GetWorldInfo();this._speed=0,this._acc=0,this._g=0,this._bounceOffSolid=!1,this._setAngle=!1,this._isStepping=!1,this._isEnabled=!0,this._dx=0,this._dy=0,this._lastX=e.GetX(),this._lastY=e.GetY(),this._lastKnownAngle=e.GetAngle(),this._travelled=0,this._stepSize=Math.min(d(e.GetWidth()),d(e.GetHeight())/2),this._stopStepping=!1,c&&(this._speed=c[0],this._acc=c[1],this._g=c[2],this._bounceOffSolid=!!c[3],this._setAngle=!!c[4],this._isStepping=!!c[5],this._isEnabled=!!c[6]);const f=e.GetAngle();this._dx=Math.cos(f)*this._speed,this._dy=Math.sin(f)*this._speed,this._isEnabled&&(this._StartTicking(),this._bounceOffSolid&&this._StartPostTicking())}Release(){super.Release()}SaveToJson(){const a={"dx":this._dx,"dy":this._dy,"lx":this._lastX,"ly":this._lastY,"lka":this._lastKnownAngle,"t":this._travelled};return 0!==this._acc&&(a["acc"]=this._acc),0!==this._g&&(a["g"]=this._g),this._isStepping&&(a["st"]=this._isStepping),this._isEnabled||(a["e"]=this._isEnabled),this._bounceOffSolid&&(a["bos"]=this._bounceOffSolid),this._setAngle&&(a["sa"]=this._setAngle),a}LoadFromJson(a){this._dx=a["dx"],this._dy=a["dy"],this._lastX=a["lx"],this._lastY=a["ly"],this._lastKnownAngle=a["lka"],this._travelled=a["t"],this._acc=a.hasOwnProperty("acc")?a["acc"]:0,this._g=a.hasOwnProperty("g")?a["g"]:0,this._isStepping=!!a.hasOwnProperty("st")&&a["st"],this._bounceOffSolid=!!a.hasOwnProperty("bos")&&a["bos"],this._setAngle=!!a.hasOwnProperty("sa")&&a["sa"],this._SetEnabled(!a.hasOwnProperty("e")||a["e"])}Tick(){var b=Math.sin,c=Math.cos;if(!this._isEnabled)return;const d=this._runtime.GetDt(this._inst),e=this._inst.GetWorldInfo();if(e.GetAngle()!==this._lastKnownAngle){const a=e.GetAngle();if(this._setAngle){const d=C3.distanceTo(0,0,this._dx,this._dy);this._dx=c(a)*d,this._dy=b(a)*d}this._lastKnownAngle=a}let f=0,g=0;if(0!==this._acc){let h=C3.distanceTo(0,0,this._dx,this._dy),i=0;i=0===this._dx&&0===this._dy?e.GetAngle():C3.angleTo(0,0,this._dx,this._dy),h+=this._acc*d,f=c(i)*this._acc,g=b(i)*this._acc,0>h&&(h=0,f=0,g=0),this._dx=c(i)*h,this._dy=b(i)*h}if(0!==this._g&&(this._dy+=this._g*d,g+=this._g),this._lastX=e.GetX(),this._lastY=e.GetY(),0!==this._dx||0!==this._dy){const b=this._dx*d+.5*f*d*d,c=this._dy*d+.5*g*d*d,a=C3.distanceTo(0,0,b,c);if(this._MoveBy(b,c,a),this._travelled+=a,this._setAngle&&(0!=b||0!=c)){const d=C3.angleTo(0,0,b,c);e.SetAngle(d),this._lastKnownAngle=e.GetAngle()}e.SetBboxChanged()}}_MoveBy(b,c,d){const e=this.GetWorldInfo();if(!this._isStepping||d<=this._stepSize)return e.OffsetXY(b,c),e.SetBboxChanged(),void(this._isStepping&&this.Trigger(C3.Behaviors.Bullet.Cnds.OnStep));this._stopStepping=!1;const f=e.GetX(),g=e.GetY(),h=C3.angleTo(0,0,b,c),a=Math.cos(h)*this._stepSize,j=Math.sin(h)*this._stepSize,k=Math.floor(d/this._stepSize);for(let h=1;h<=k;++h)if(e.SetXY(f+a*h,g+j*h),e.SetBboxChanged(),this.Trigger(C3.Behaviors.Bullet.Cnds.OnStep),this._inst.IsDestroyed()||this._stopStepping)return;e.SetXY(f+b,g+c),e.SetBboxChanged(),this.Trigger(C3.Behaviors.Bullet.Cnds.OnStep)}PostTick(){if(this._isEnabled&&this._bounceOffSolid&&(0!==this._dx||0!==this._dy)){const a=this._runtime.GetDt(this._inst),b=this._inst.GetWorldInfo(),c=this._runtime.GetCollisionEngine(),d=c.TestOverlapSolid(this._inst);if(d){c.RegisterCollision(this._inst,d);const e=C3.distanceTo(0,0,this._dx,this._dy),f=c.CalculateBounceAngle(this._inst,this._lastX,this._lastY);this._dx=Math.cos(f)*e,this._dy=Math.sin(f)*e,b.OffsetXY(this._dx*a,this._dy*a),b.SetBboxChanged(),this._setAngle&&(b.SetAngle(f),this._lastKnownAngle=b.GetAngle(),b.SetBboxChanged()),c.PushOutSolid(this._inst,this._dx/e,this._dy/e,Math.max(2.5*e*a,30))||c.PushOutSolidNearest(this._inst,100)}}}GetPropertyValueByIndex(a){return a===0?this._GetSpeed():1===a?this._GetAcceleration():2===a?this._GetGravity():4===a?this._setAngle:5===a?this._isStepping:6===a?this._IsEnabled():void 0}SetPropertyValueByIndex(a,b){a===0?this._SetSpeed(b):1===a?this._acc=b:2===a?this._g=b:4===a?this._setAngle=!!b:5===a?this._isStepping=!!b:6===a?this._SetEnabled(!!b):void 0}_SetSpeed(b){const c=C3.angleTo(0,0,this._dx,this._dy);this._dx=Math.cos(c)*b,this._dy=Math.sin(c)*b}_GetSpeed(){return C3.round6dp(C3.distanceTo(0,0,this._dx,this._dy))}_SetAcceleration(b){this._acc=b}_GetAcceleration(){return this._acc}_SetGravity(a){this._g=a}_GetGravity(){return this._g}_SetAngleOfMotion(b){const a=C3.distanceTo(0,0,this._dx,this._dy);this._dx=Math.cos(b)*a,this._dy=Math.sin(b)*a}_GetAngleOfMotion(){return C3.angleTo(0,0,this._dx,this._dy)}_SetBounceOffSolids(a){a=!!a;this._bounceOffSolid===a||(this._bounceOffSolid=a,this._isEnabled&&(this._bounceOffSolid?this._StartPostTicking():this._StopPostTicking()))}_IsBounceOffSolids(){return this._bounceOffSolid}_SetDistanceTravelled(a){this._travelled=a}_GetDistanceTravelled(){return this._travelled}_SetEnabled(a){this._isEnabled=!!a,this._isEnabled?(this._StartTicking(),this._bounceOffSolid&&this._StartPostTicking()):(this._StopTicking(),this._StopPostTicking())}_IsEnabled(){return this._isEnabled}GetDebuggerProperties(){return[{title:"$"+this.GetBehaviorType().GetName(),properties:[{name:"behaviors.bullet.debugger.vector-x",value:this._dx,onedit:(a)=>this._dx=a},{name:"behaviors.bullet.debugger.vector-y",value:this._dy,onedit:(a)=>this._dy=a},{name:"behaviors.bullet.properties.speed.name",value:this._GetSpeed(),onedit:(a)=>this._SetSpeed(a)},{name:"behaviors.bullet.debugger.angle-of-motion",value:C3.toDegrees(this._GetAngleOfMotion())},{name:"behaviors.bullet.properties.gravity.name",value:this._GetGravity(),onedit:(a)=>this._SetGravity(a)},{name:"behaviors.bullet.properties.acceleration.name",value:this._GetAcceleration(),onedit:(a)=>this._SetAcceleration(a)},{name:"behaviors.bullet.debugger.distance-travelled",value:this._GetDistanceTravelled()},{name:"behaviors.bullet.properties.enabled.name",value:this._IsEnabled(),onedit:(a)=>this._SetEnabled(a)}]}]}GetScriptInterfaceClass(){return IBulletBehaviorInstance}};const c=new WeakMap;self.IBulletBehaviorInstance=class extends IBehaviorInstance{constructor(){super(),c.set(this,IBehaviorInstance._GetInitInst().GetSdkInstance())}get speed(){return c.get(this)._GetSpeed()}set speed(a){c.get(this)._SetSpeed(a)}get acceleration(){return c.get(this)._GetAcceleration()}set acceleration(b){c.get(this)._SetAcceleration(b)}get gravity(){return c.get(this)._GetGravity()}set gravity(a){c.get(this)._SetGravity(a)}get angleOfMotion(){return c.get(this)._GetAngleOfMotion()}set angleOfMotion(b){c.get(this)._SetAngleOfMotion(b)}get bounceOffSolids(){return c.get(this)._IsBounceOffSolids()}set bounceOffSolids(a){c.get(this)._SetBounceOffSolids(!!a)}get distanceTravelled(){return c.get(this)._GetDistanceTravelled()}set distanceTravelled(a){c.get(this)._SetDistanceTravelled(a)}get isEnabled(){return c.get(this)._IsEnabled()}set isEnabled(a){c.get(this)._SetEnabled(a)}}}
-
-"use strict";C3.Behaviors.Bullet.Cnds={CompareSpeed(a,b){const c=Math.sqrt(this._dx*this._dx+this._dy*this._dy);return C3.compare(c,a,b)},CompareTravelled(a,b){return C3.compare(this._GetDistanceTravelled(),a,b)},OnStep(){return!0},IsEnabled(){return this._IsEnabled()}};
-
-"use strict";C3.Behaviors.Bullet.Acts={SetSpeed(a){this._SetSpeed(a)},SetAcceleration(b){this._SetAcceleration(b)},SetGravity(a){this._SetGravity(a)},SetAngleOfMotion(b){this._SetAngleOfMotion(C3.toRadians(b))},Bounce(a){var b=Math.max;if(a){const c=a.GetFirstPicked(this._inst);if(c){const a=this._inst.GetWorldInfo(),d=this._runtime.GetCollisionEngine(),e=this._runtime.GetDt(this._inst),f=C3.distanceTo(0,0,this._dx,this._dy),g=d.CalculateBounceAngle(this._inst,this._lastX,this._lastY,c);this._dx=Math.cos(g)*f,this._dy=Math.sin(g)*f,a.OffsetXY(this._dx*e,this._dy*e),a.SetBboxChanged(),this._setAngle&&(a.SetAngle(g),this._lastKnownAngle=a.GetAngle(),a.SetBboxChanged()),0!==f&&(this._bounceOffSolid?!d.PushOutSolid(this._inst,this._dx/f,this._dy/f,b(2.5*f*e,30))&&d.PushOutSolidNearest(this._inst,100):d.PushOut(this._inst,this._dx/f,this._dy/f,b(2.5*f*e,30),c))}}},SetBounceOffSolids(a){this._SetBounceOffSolids(a)},SetDistanceTravelled(a){this._SetDistanceTravelled(a)},SetEnabled(a){this._SetEnabled(a)},StopStepping(){this._stopStepping=!0}};
-
-"use strict";C3.Behaviors.Bullet.Exps={Speed(){return this._GetSpeed()},Acceleration(){return this._GetAcceleration()},AngleOfMotion(){return C3.toDegrees(this._GetAngleOfMotion())},DistanceTravelled(){return this._GetDistanceTravelled()},Gravity(){return this._GetGravity()}};
-
 "use strict";C3.Behaviors.solid=class extends C3.SDKBehaviorBase{constructor(a){super(a)}Release(){super.Release()}};
 
 "use strict";C3.Behaviors.solid.Type=class extends C3.SDKBehaviorTypeBase{constructor(a){super(a)}Release(){super.Release()}OnCreate(){}};
@@ -584,12 +572,23 @@ self["C3_Shaders"] = {};
 
 "use strict";C3.Behaviors.Platform.Exps={Speed(){return this._GetSpeed()},MaxSpeed(){return this._GetMaxSpeed()},Acceleration(){return this._GetAcceleration()},Deceleration(){return this._GetDeceleration()},JumpStrength(){return this._GetJumpStrength()},Gravity(){return this._GetGravity()},GravityAngle(){return C3.toDegrees(this._GetGravityAngle())},MaxFallSpeed(){return this._GetMaxFallSpeed()},MovingAngle(){return C3.toDegrees(this._GetMovingAngle())},VectorX(){return this._GetVectorX()},VectorY(){return this._GetVectorY()},JumpSustain(){return 1e3*this._GetJumpSustain()}};
 
+"use strict";C3.Behaviors.MoveTo=class extends C3.SDKBehaviorBase{constructor(a){super(a)}Release(){super.Release()}};
+
+"use strict";C3.Behaviors.MoveTo.Type=class extends C3.SDKBehaviorTypeBase{constructor(a){super(a)}Release(){super.Release()}OnCreate(){}};
+
+"use strict";{C3.Behaviors.MoveTo.Instance=class extends C3.SDKBehaviorInstanceBase{constructor(a,b){super(a),this._maxSpeed=200,this._acc=600,this._dec=600,this._rotateSpeed=0,this._setAngle=!0,this._stopOnSolids=!1,this._isEnabled=!0,this._speed=0,this._movingAngle=this.GetWorldInfo().GetAngle(),this._waypoints=[],b&&(this._maxSpeed=b[0],this._acc=b[1],this._dec=b[2],this._rotateSpeed=C3.toRadians(b[3]),this._setAngle=b[4],this._stopOnSolids=b[5],this._isEnabled=b[6])}Release(){super.Release()}SaveToJson(){return{"ms":this._maxSpeed,"acc":this._acc,"dec":this._dec,"rs":this._rotateSpeed,"sa":this._setAngle,"sos":this._stopOnSolids,"s":this._speed,"ma":this._movingAngle,"wp":this._waypoints.map((a)=>({"x":a.x,"y":a.y})),"e":this._isEnabled}}LoadFromJson(a){this._maxSpeed=a["ms"],this._acc=a["acc"],this._dec=a["dec"],this._rotateSpeed=a["rs"],this._setAngle=a["sa"],this._stopOnSolids=a["sos"],this._speed=a["s"],this._movingAngle=a["ma"],this._waypoints=a["wp"].map((a)=>({x:a["x"],y:a["y"]})),this._SetEnabled(a["e"]),this._isEnabled&&0<this._waypoints.length&&this._StartTicking()}_AddWaypoint(a,b,c){c&&C3.clearArray(this._waypoints),this._waypoints.push({x:a,y:b}),this._isEnabled&&this._StartTicking()}_IsMoving(){return 0<this._waypoints.length}_Stop(){C3.clearArray(this._waypoints),this._speed=0,this._StopTicking()}_GetTargetX(){return 0<this._waypoints.length?this._waypoints[0].x:0}_GetTargetY(){return 0<this._waypoints.length?this._waypoints[0].y:0}_SetSpeed(a){this._IsMoving()&&(this._speed=Math.min(a,this._maxSpeed))}_IsRotationEnabled(){return 0!==this._rotateSpeed}Tick(){var a=Math.sin,b=Math.min;if(!this._isEnabled||!this._IsMoving())return;const c=this._runtime.GetDt(this._inst),d=this._inst.GetWorldInfo(),e=d.GetX(),f=d.GetY(),g=d.GetAngle();let h=this._speed,i=this._maxSpeed;const j=this._acc,k=this._dec,l=this._GetTargetX(),m=this._GetTargetY(),n=C3.angleTo(e,f,l,m);let o=!1;if(0<k&&1===this._waypoints.length){const a=1.0001*(.5*h*h/k);if(o=C3.distanceSquared(e,f,l,m)<=a*a,o){const a=C3.distanceTo(e,f,l,m);h=Math.sqrt(2*k*a),i=h,this._speed=h}}if(this._IsRotationEnabled()){const c=C3.angleDiff(this._movingAngle,n);if(c>Number.EPSILON){const e=c/this._rotateSpeed,f=C3.distanceTo(d.GetX(),d.GetY(),l,m),g=f/(2*a(c));i=b(i,C3.clamp(g*c/e,0,this._maxSpeed))}}let p=o?-k:j;const q=b(h*c+.5*p*c*c,i*c);if(!o)this._speed=0===j?i:b(this._speed+j*c,i);else if(0<k&&(this._speed=Math.max(this._speed-k*c,0),0===this._speed))return void this._OnArrived(d,l,m);return C3.distanceSquared(d.GetX(),d.GetY(),l,m)<=q*q?void this._OnArrived(d,l,m):void(this._movingAngle=this._IsRotationEnabled()?C3.angleRotate(this._movingAngle,n,this._rotateSpeed*c):n,d.OffsetXY(Math.cos(this._movingAngle)*q,a(this._movingAngle)*q),this._setAngle&&d.SetAngle(this._movingAngle),d.SetBboxChanged(),this._CheckSolidCollision(e,f,g))}_OnArrived(a,b,c){a.SetXY(b,c),a.SetBboxChanged(),this._waypoints.shift(),0===this._waypoints.length&&(this._speed=0,this._StopTicking()),this.Trigger(C3.Behaviors.MoveTo.Cnds.OnArrived)}_CheckSolidCollision(a,b,c){if(this._stopOnSolids&&this._runtime.GetCollisionEngine().TestOverlapSolid(this._inst)){this._Stop();const d=this._inst.GetWorldInfo();d.SetXY(a,b),d.SetAngle(c),d.SetBboxChanged(),this.Trigger(C3.Behaviors.MoveTo.Cnds.OnHitSolid)}}GetPropertyValueByIndex(a){return a===0?this._maxSpeed:1===a?this._acc:2===a?this._dec:3===a?C3.toDegrees(this._rotateSpeed):4===a?this._setAngle:5===a?this._stopOnSolids:6===a?this._isEnabled:void 0}SetPropertyValueByIndex(a,b){a===0?this._maxSpeed=b:1===a?this._acc=b:2===a?this._dec=b:3===a?this._rotateSpeed=C3.toRadians(b):4===a?this._setAngle=b:5===a?this._stopOnSolids=b:6===a?this._SetEnabled(b):void 0}_SetEnabled(a){a=!!a;this._isEnabled===a||(this._isEnabled=a,this._isEnabled&&this._IsMoving()?this._StartTicking():this._StopTicking())}GetDebuggerProperties(){return[{title:"$"+this.GetBehaviorType().GetName(),properties:[{name:"behaviors.moveto.debugger.speed",value:this._speed,onedit:(a)=>this._SetSpeed(a)},{name:"behaviors.moveto.debugger.angle-of-motion",value:C3.toDegrees(this._movingAngle),onedit:(a)=>this._movingAngle=C3.toRadians(a)},{name:"behaviors.moveto.debugger.target-x",value:this._GetTargetX()},{name:"behaviors.moveto.debugger.target-y",value:this._GetTargetY()},{name:"behaviors.moveto.debugger.waypoint-count",value:this._waypoints.length},{name:"behaviors.moveto.properties.max-speed.name",value:this._maxSpeed,onedit:(a)=>this._maxSpeed=a},{name:"behaviors.moveto.properties.acceleration.name",value:this._acc,onedit:(a)=>this._acc=a},{name:"behaviors.moveto.properties.deceleration.name",value:this._dec,onedit:(a)=>this._dec=a},{name:"behaviors.moveto.properties.rotate-speed.name",value:C3.toDegrees(this._rotateSpeed),onedit:(a)=>this._rotateSpeed=C3.toRadians(a)},{name:"behaviors.moveto.properties.enabled.name",value:this._isEnabled,onedit:(a)=>this._SetEnabled(a)}]}]}}}
+
+"use strict";C3.Behaviors.MoveTo.Cnds={IsMoving(){return this._IsMoving()},CompareSpeed(a,b){return C3.compare(this._speed,a,b)},IsEnabled(){return this._isEnabled},OnArrived(){return!0},OnHitSolid(){return!0}};
+
+"use strict";C3.Behaviors.MoveTo.Acts={MoveToPosition(a,b,c){this._AddWaypoint(a,b,0===c)},MoveToObject(a,b){if(a){const c=a.GetPairedInstance(this._inst);if(c){const a=c.GetWorldInfo();a&&this._AddWaypoint(a.GetX(),a.GetY(),0===b)}}},MoveAlongPathfindingPath(a){const b=this._inst.GetBehaviorSdkInstanceFromCtor(C3.Behaviors.Pathfinding);if(b){const c=b._GetPath();if(0!==c.length)for(let b=0,d=c.length;b<d;++b){const d=c[b];this._AddWaypoint(d.x,d.y,0===b&&0===a)}}},MoveAlongTimeline(a,b,c){let d=null;if(d=b?a.GetTrackById(b):C3.first(a.GetTracks()),!d)return;const e=d.GetPropertyTrack("offsetX"),f=d.GetPropertyTrack("offsetY");if(!e||!f)return;const g=[...e.GetPropertyKeyframeValues()],h=[...f.GetPropertyKeyframeValues()];if(0===g.length||0===h.length)return;let j=0,k=0;const i=this._inst.GetWorldInfo();"relative"===e.GetResultMode()&&(j=i.GetX()),"relative"===f.GetResultMode()&&(k=i.GetY());for(let d=0,e=Math.min(g.length,h.length);d<e;++d){const a=g[d]+j,b=h[d]+k;this._AddWaypoint(a,b,0===d&&0===c)}},MoveAlongTimelineByName(a,b,c){const d=this._runtime.GetTimelineManager().GetTimelineByName(a);d&&C3.Behaviors.MoveTo.Acts.MoveAlongTimeline.call(this,d,b,c)},Stop(){this._Stop()},SetMovingAngle(b){this._movingAngle=C3.toRadians(b)},SetSpeed(a){this._SetSpeed(a)},SetMaxSpeed(a){this._maxSpeed=Math.max(a,0),this._SetSpeed(this._speed)},SetAcceleration(b){this._acc=Math.max(b,0)},SetDeceleration(a){this._dec=Math.max(a,0)},SetRotateSpeed(a){this._rotateSpeed=Math.max(C3.toRadians(a),0)},SetStopOnSolids(a){this._stopOnSolids=!!a},SetEnabled(a){this._SetEnabled(a)}};
+
+"use strict";C3.Behaviors.MoveTo.Exps={Speed(){return this._speed},MaxSpeed(){return this._maxSpeed},Acceleration(){return this._acc},Deceleration(){return this._dec},MovingAngle(){return C3.toDegrees(this._movingAngle)},RotateSpeed(){return C3.toDegrees(this._rotateSpeed)},TargetX(){return this._GetTargetX()},TargetY(){return this._GetTargetY()},WaypointCount(){return this._waypoints.length},WaypointXAt(a){return a=Math.floor(a),0>a||a>=this._waypoints.length?0:this._waypoints[a].x},WaypointYAt(a){return a=Math.floor(a),0>a||a>=this._waypoints.length?0:this._waypoints[a].y}};
+
 "use strict"
 self.C3_GetObjectRefTable = function () {
 	return [
 		C3.Plugins.Sprite,
 		C3.Behaviors.Pin,
-		C3.Behaviors.Bullet,
 		C3.Behaviors.solid,
 		C3.Plugins.Touch,
 		C3.Plugins.Text,
@@ -597,36 +596,34 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Fade,
 		C3.Plugins.TextBox,
 		C3.Behaviors.Platform,
+		C3.Behaviors.MoveTo,
 		C3.Plugins.System.Cnds.OnLayoutStart,
-		C3.Behaviors.Bullet.Acts.SetAngleOfMotion,
 		C3.Plugins.Sprite.Acts.SetAnim,
 		C3.Behaviors.Pin.Acts.Pin,
+		C3.Plugins.System.Cnds.Every,
+		C3.Plugins.System.Cnds.CompareBoolVar,
+		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.System.Cnds.EveryTick,
 		C3.Plugins.Sprite.Acts.SetY,
 		C3.Plugins.Sprite.Exps.Y,
 		C3.Plugins.System.Exps.dt,
-		C3.Behaviors.Bullet.Acts.SetSpeed,
-		C3.Plugins.System.Acts.AddVar,
-		C3.Behaviors.Bullet.Exps.Speed,
 		C3.Plugins.Text.Acts.SetText,
-		C3.Plugins.System.Cnds.Every,
-		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Plugins.System.Cnds.IsGroupActive,
 		C3.Behaviors.Platform.Cnds.IsOnFloor,
-		C3.Plugins.Sprite.Cnds.CompareX,
-		C3.Plugins.Sprite.Acts.SetX,
-		C3.Plugins.System.Acts.SetVar,
-		C3.Plugins.System.Acts.SetBoolVar,
-		C3.Plugins.System.Cnds.Else,
-		C3.Plugins.System.Cnds.CompareVar,
-		C3.Plugins.Touch.Cnds.OnTouchStart,
-		C3.Behaviors.Platform.Acts.SimulateControl,
-		C3.Plugins.Touch.Cnds.CompareOrientation,
-		C3.Plugins.System.Cnds.Compare,
 		C3.Plugins.Sprite.Cnds.OnCollision,
 		C3.Plugins.Sprite.Cnds.IsOverlapping,
 		C3.Plugins.Sprite.Acts.Destroy,
 		C3.Plugins.Sprite.Acts.SetPos,
+		C3.Plugins.System.Acts.SetVar,
+		C3.Plugins.Touch.Cnds.OnTouchStart,
+		C3.Behaviors.Platform.Acts.SimulateControl,
+		C3.Behaviors.Platform.Cnds.IsMoving,
+		C3.Plugins.Touch.Cnds.CompareOrientation,
+		C3.Plugins.System.Cnds.Compare,
+		C3.Behaviors.MoveTo.Acts.MoveToPosition,
+		C3.Plugins.System.Acts.SetBoolVar,
+		C3.Plugins.System.Cnds.Else,
+		C3.Plugins.Sprite.Exps.X,
 		C3.Plugins.System.Exps.random,
 		C3.Plugins.System.Exps.choose,
 		C3.Plugins.System.Acts.CreateObject,
@@ -635,6 +632,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.Sprite.Cnds.CompareY,
 		C3.Plugins.Sprite.Exps.Height,
 		C3.Plugins.System.Exps.layoutheight,
+		C3.Plugins.Sprite.Acts.SetX,
 		C3.Plugins.Sprite.Cnds.OnDestroyed,
 		C3.Plugins.System.Acts.Wait,
 		C3.Plugins.System.Acts.GoToLayout,
@@ -658,6 +656,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Exps.int,
 		C3.Plugins.AJAX.Acts.Post,
 		C3.Plugins.Text.Acts.SetVisible,
+		C3.Plugins.System.Cnds.CompareVar,
 		C3.Plugins.Touch.Cnds.OnTapGestureObject,
 		C3.Plugins.AJAX.Cnds.OnProgress,
 		C3.Plugins.AJAX.Cnds.OnComplete,
@@ -667,7 +666,6 @@ self.C3_GetObjectRefTable = function () {
 self.C3_JsPropNameTable = [
 	{Pin: 0},
 	{PlayerImage: 0},
-	{Bullet: 0},
 	{Enemy: 0},
 	{Solid: 0},
 	{InvisiblePlatform: 0},
@@ -705,6 +703,7 @@ self.C3_JsPropNameTable = [
 	{Road: 0},
 	{WaterBackground: 0},
 	{Platform: 0},
+	{MoveTo: 0},
 	{PlayerBox: 0},
 	{GameOverSprite: 0},
 	{Boat1: 0},
@@ -733,6 +732,7 @@ self.C3_JsPropNameTable = [
 	{BulletSpeedUpdated: 0},
 	{web_app_url: 0},
 	{s: 0},
+	{OnTransition: 0},
 	{value0: 0},
 	{value1: 0},
 	{value2: 0},
@@ -838,8 +838,9 @@ self.C3_JsPropNameTable = [
 	}
 
 	self.C3_ExpressionFuncs = [
-		() => 90,
 		() => "Run",
+		() => 1,
+		() => 6,
 		p => {
 			const n0 = p._GetNode(0);
 			const f1 = p._GetNode(1).GetBoundMethod();
@@ -851,32 +852,39 @@ self.C3_JsPropNameTable = [
 			return () => (n0.ExpObject() + ((50 * f1()) * 2));
 		},
 		p => {
+			const n0 = p._GetNode(0);
+			const v1 = p._GetNode(1).GetVar();
+			const f2 = p._GetNode(2).GetBoundMethod();
+			return () => (n0.ExpObject() + (v1.GetValue() * f2()));
+		},
+		p => {
+			const v0 = p._GetNode(0).GetVar();
+			const f1 = p._GetNode(1).GetBoundMethod();
+			return () => (v0.GetValue() * f1());
+		},
+		p => {
 			const v0 = p._GetNode(0).GetVar();
 			return () => v0.GetValue();
 		},
-		p => {
-			const n0 = p._GetNode(0);
-			const f1 = p._GetNode(1).GetBoundMethod();
-			return () => (n0.ExpBehavior() * f1());
-		},
-		() => 1,
 		() => "Player",
-		() => 120,
-		() => 230,
-		() => 250,
-		() => 2,
-		() => 240,
-		() => 360,
-		() => 3,
-		() => "JumpLeft",
-		() => "JumpRight",
-		() => -20,
-		() => 20,
 		() => "GameOver",
 		() => 236,
 		() => 243,
 		() => 0,
 		() => "Jump",
+		() => -10,
+		() => 120,
+		p => {
+			const n0 = p._GetNode(0);
+			return () => n0.ExpObject();
+		},
+		() => "JumpLeft",
+		() => 10,
+		() => 3,
+		() => 360,
+		() => "JumpRight",
+		() => 2,
+		() => 240,
 		() => "Enemy",
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
@@ -905,10 +913,6 @@ self.C3_JsPropNameTable = [
 		() => "Background",
 		p => {
 			const n0 = p._GetNode(0);
-			return () => n0.ExpObject();
-		},
-		p => {
-			const n0 = p._GetNode(0);
 			return () => (n0.ExpObject() - (854 * 2));
 		},
 		() => 854,
@@ -923,17 +927,6 @@ self.C3_JsPropNameTable = [
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => f0((-5), 20);
-		},
-		() => "Game Logic",
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const v1 = p._GetNode(1).GetVar();
-			return () => (v0.GetValue() - (v1.GetValue() % 10));
-		},
-		p => {
-			const v0 = p._GetNode(0).GetVar();
-			const v1 = p._GetNode(1).GetVar();
-			return () => (v0.GetValue() + (v1.GetValue() * 5));
 		},
 		() => "OverSetup",
 		() => 237,
@@ -1119,7 +1112,6 @@ self.C3_JsPropNameTable = [
 		() => "O",
 		() => 5,
 		() => "R",
-		() => 6,
 		() => "I",
 		() => 7,
 		() => "Z",
